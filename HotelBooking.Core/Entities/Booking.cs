@@ -12,5 +12,6 @@ namespace HotelBooking.Core
         public int RoomId { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual Room Room { get; set; }
+        public bool IsCheckedIn { get; set; } //To track check-in status
     }
 }
