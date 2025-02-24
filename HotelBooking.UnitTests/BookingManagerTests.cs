@@ -1,12 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using HotelBooking.Core;
 using Moq;
 using Xunit;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HotelBooking.UnitTests
 {
@@ -58,8 +55,8 @@ namespace HotelBooking.UnitTests
         }
 
         [Fact]
-        // Diagram: Corresponds to Circles 2 & 3 (Searching/Booking before the fully occupied period)
-        // These tests check if a room is available before the fully occupied period and ensure a valid room ID is returned.
+        // Diagram: Corresponds to Circles 2 & 3 (Checking for available rooms before the fully occupied period)
+        // This test checks if a room is available before the fully occupied period and ensure a valid room ID is returned.
         public async Task FindAvailableRoom_RoomAvailable_RoomIdNotMinusOne()
         {
             // Arrange
@@ -74,40 +71,22 @@ namespace HotelBooking.UnitTests
             _mockBookingRepository.Verify(repo => repo.GetAllAsync(), Times.AtLeastOnce);
         }
 
-        //[Fact]
-        // Diagram: Corresponds to Circle 4 (Fully occupied period from startDate to endDate)
-        // This verifies that the function correctly identifies the period where all rooms are booked.
-        //public async Task GetFullyOccupiedDates_DuringOccupiedPeriod_ReturnsOccupiedDates()
-        //{
-        //    // Arrange
-        //    DateTime startDate = DateTime.Today.AddDays(10);
-        //    DateTime endDate = DateTime.Today.AddDays(20);
-
-        //    // Act
-        //    List<DateTime> occupiedDates = await _bookingManager.GetFullyOccupiedDates(startDate, endDate);
-
-        //    // Assert
-        //    Assert.NotEmpty(occupiedDates);
-        //    Assert.Contains(DateTime.Today.AddDays(10), occupiedDates);
-        //    Assert.Contains(DateTime.Today.AddDays(15), occupiedDates);
-        //    _mockBookingRepository.Verify(repo => repo.GetAllAsync(), Times.Once);
-        //}
-
         [Fact]
-        // Diagram: Corresponds to Circle 5 (Checking for available rooms outside the occupied period)
-        // Ensures that when there are no overlapping bookings, the list of occupied dates is empty.
-        public async Task GetFullyOccupiedDates_NoOverlappingBookings_ReturnsEmptyList()
+        //Diagram: Corresponds to Circle 4 (Fully occupied period from startDate to endDate)
+        // This verifies that the function correctly identifies the period where all rooms are booked.
+        public async Task GetFullyOccupiedDates_DuringOccupiedPeriod_ReturnsOccupiedDates()
         {
             // Arrange
-            DateTime startDate = DateTime.Today.AddDays(1);
-            DateTime endDate = DateTime.Today.AddDays(5);
-            _mockBookingRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(new List<Booking>()); // No overlapping bookings
+            DateTime startDate = DateTime.Today.AddDays(10); // Only Room 1 is booked until day 15
+            DateTime endDate = DateTime.Today.AddDays(25); // Only Room 2 is booked after day 20
 
             // Act
-            List<DateTime> occupiedDates = await _bookingManager.GetFullyOccupiedDates(startDate, endDate);
+            List<DateTime> occupiedDates = await _bookingManager.GetFullyOccupiedDates(startDate, endDate); // Checking the period where there is at least one booking.
 
             // Assert
-            Assert.Empty(occupiedDates);
+            Assert.NotEmpty(occupiedDates);
+            Assert.Contains(DateTime.Today.AddDays(15), occupiedDates); // Both Room 1 and Room 2 are booked here.
+            Assert.Contains(DateTime.Today.AddDays(20), occupiedDates); // Both Room 1 and Room 2 are booked here.
             _mockBookingRepository.Verify(repo => repo.GetAllAsync(), Times.Once);
         }
 
@@ -154,59 +133,6 @@ namespace HotelBooking.UnitTests
             Assert.False(isBooked);
             _mockBookingRepository.Verify(repo => repo.AddAsync(It.IsAny<Booking>()), Times.Never);
         }
-
-        //[Fact]
-        // Diagram: Corresponds to Circle 8 (Editing booking before check-in)
-        // Ensures that editing a booking before the start date works as expected.
-        //public async Task EditBooking_BeforeStartDate_Succeeds()
-        //{
-        //    // Arrange
-        //    var existingBooking = new Booking
-        //    {
-        //        Id = 1,
-        //        StartDate = DateTime.Today.AddDays(10),
-        //        EndDate = DateTime.Today.AddDays(15),
-        //        IsActive = true,
-        //        RoomId = 1
-        //    };
-
-        //    var updatedBooking = new Booking
-        //    {
-        //        Id = 1,
-        //        StartDate = DateTime.Today.AddDays(12), // Modified start date
-        //        EndDate = DateTime.Today.AddDays(16),   // Modified end date
-        //        IsActive = true,
-        //        RoomId = 1
-        //    };
-
-        //    _mockBookingRepository.Setup(repo => repo.GetAsync(existingBooking.Id)).ReturnsAsync(existingBooking);
-        //    _mockBookingRepository.Setup(repo => repo.EditAsync(It.IsAny<Booking>())).Returns(Task.CompletedTask);
-
-        //    // Act
-        //    bool isModified = await _bookingManager.EditBooking(updatedBooking);
-
-        //    // Assert
-        //    Assert.True(isModified);
-        //    _mockBookingRepository.Verify(repo => repo.EditAsync(It.IsAny<Booking>()), Times.Once);
-        //}
-
-        //[Fact]
-        // Business Logic: "A customer can cancel or change a reservation before the start date occurs."
-        // Ensures that users can cancel their reservations before the booking start date.
-        //public async Task CancelBooking_BeforeStartDate_Succeeds()
-        //{
-        //    // Arrange
-        //    var existingBooking = new Booking { IsActive = true };
-        //    _mockBookingRepository.Setup(repo => repo.EditAsync(It.IsAny<Booking>())).Returns(Task.CompletedTask);
-
-        //    // Act
-        //    existingBooking.IsActive = false;
-        //    await _mockBookingRepository.Object.EditAsync(existingBooking);
-
-        //    // Assert
-        //    Assert.False(existingBooking.IsActive);
-        //    _mockBookingRepository.Verify(repo => repo.EditAsync(It.IsAny<Booking>()), Times.Once);
-        //}
 
         [Fact]
         // Business Logic: "If the customer does not check in at the start date, the reservation should be cancelled."
