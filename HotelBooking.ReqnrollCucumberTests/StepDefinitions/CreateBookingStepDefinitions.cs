@@ -7,7 +7,6 @@ namespace HotelBooking.ReqnrollCucumberTests.StepDefinitions
         private bool bookingConfirmed;
         private bool roomOccupied;
         private bool bookingCanceled;
-        private bool bookingModified;
         private bool bookingRejected;
 
         [Given("the hotel has rooms available")]
@@ -20,6 +19,12 @@ namespace HotelBooking.ReqnrollCucumberTests.StepDefinitions
         public void GivenRoomIsAvailable()
         {
             Assert.True(roomAvailable, "Room is not available");
+        }
+
+        [Given("no rooms are available for the requested dates")]
+        public void GivenNoRoomsAvailable()
+        {
+            roomAvailable = false;
         }
 
         [When(@"I make a booking from ""(.*)"" to ""(.*)""")]
@@ -36,16 +41,11 @@ namespace HotelBooking.ReqnrollCucumberTests.StepDefinitions
                 roomOccupied = true;
         }
 
-        [Then("the booking should be confirmed")]
-        public void ThenBookingShouldBeConfirmed()
+        [When("I cancel the booking before {string}")]
+        public void WhenICancelBookingBefore(string date)
         {
-            Assert.True(bookingConfirmed, "Booking was not confirmed");
-        }
-
-        [Then("the room should be marked as occupied")]
-        public void ThenRoomShouldBeMarkedAsOccupied()
-        {
-            Assert.True(roomOccupied, "Room was not marked as occupied");
+            if (bookingConfirmed)
+                bookingCanceled = true;
         }
 
         [When("I do not check in on {string}")]
@@ -58,6 +58,25 @@ namespace HotelBooking.ReqnrollCucumberTests.StepDefinitions
             }
         }
 
+        [When("I attempt to book a room from {string} to {string}")]
+        public void WhenIAttemptToBook(string startDate, string endDate)
+        {
+            if (!roomAvailable)
+                bookingRejected = true;
+        }
+
+        [Then("the booking should be confirmed")]
+        public void ThenBookingShouldBeConfirmed()
+        {
+            Assert.True(bookingConfirmed, "Booking was not confirmed");
+        }
+
+        [Then("the room should be marked as occupied")]
+        public void ThenRoomShouldBeMarkedAsOccupied()
+        {
+            Assert.True(roomOccupied, "Room was not marked as occupied");
+        }
+
         [Then("the booking should be canceled")]
         public void ThenBookingShouldBeCanceled()
         {
@@ -68,47 +87,6 @@ namespace HotelBooking.ReqnrollCucumberTests.StepDefinitions
         public void ThenRoomShouldBeAvailable()
         {
             Assert.False(roomOccupied, "Room is not available");
-        }
-
-        [When("I cancel the booking before {string}")]
-        public void WhenICancelBookingBefore(string date)
-        {
-            if (bookingConfirmed)
-                bookingCanceled = true;
-        }
-
-        [When("I modify the booking to {string} to {string}")]
-        public void WhenIModifyTheBooking(string newStartDate, string newEndDate)
-        {
-            if (bookingConfirmed)
-            {
-                bookingModified = true;
-            }
-        }
-
-        [Then("the booking should be updated")]
-        public void ThenBookingShouldBeUpdated()
-        {
-            Assert.True(bookingModified, "Booking was not updated");
-        }
-
-        [Then("the room should be reserved for the new dates")]
-        public void ThenRoomShouldBeReservedForNewDates()
-        {
-            Assert.True(bookingModified, "Room is not reserved for the new dates");
-        }
-
-        [Given("no rooms are available for the requested dates")]
-        public void GivenNoRoomsAvailable()
-        {
-            roomAvailable = false;
-        }
-
-        [When("I attempt to book a room from {string} to {string}")]
-        public void WhenIAttemptToBook(string startDate, string endDate)
-        {
-            if (!roomAvailable)
-                bookingRejected = true;
         }
 
         [Then("the booking should be rejected")]
