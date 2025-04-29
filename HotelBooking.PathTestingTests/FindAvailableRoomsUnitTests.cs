@@ -19,22 +19,6 @@
             _mockBookingRepository = new Mock<IRepository<Booking>>();
             _mockRoomRepository = new Mock<IRepository<Room>>();
 
-            // Setup sample data for tests
-            var sampleBookings = new List<Booking>
-            {
-                new Booking { RoomId = 1, StartDate = DateTime.Today.AddDays(10), EndDate = DateTime.Today.AddDays(20), IsActive = true },
-                new Booking { RoomId = 2, StartDate = DateTime.Today.AddDays(15), EndDate = DateTime.Today.AddDays(25), IsActive = true }
-            };
-
-            var sampleRooms = new List<Room>
-            {
-                new Room { Id = 1 },
-                new Room { Id = 2 }
-            };
-
-            _mockBookingRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(sampleBookings);
-            _mockRoomRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(sampleRooms);
-
             _bookingManager = new BookingManager(_mockBookingRepository.Object, _mockRoomRepository.Object);
         }
 
