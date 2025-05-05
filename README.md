@@ -35,8 +35,15 @@
 
 ![Diagram](docs/program_graph_FindAvailableRooms.jpg)
 
+**Feedback from presentation:** When there is a return, the path jumps straight to the sink node. So line 12 should have been straight to line 16 not through line 13 and 14.
+
 ##### DD-path Graph
 ![Diagram](docs/dd_path_graph_FindAvailableRooms.jpg)
+
+**Feedback from presentation:** The DD graph could have been made even simpler, but it may harm readability:
+![Diagram](docs/Henriks_version_dd_graph_FindAvailableRooms.jpg)
+
+
 
 ### Cyclomatic Complexity
 #### Simple way: Count the decision points
@@ -99,3 +106,7 @@ C = 2 + 2
 C = 4
 ````
 
+**Notes for exam project**: 
+1. Pick code with interesting business logic
+2. Derive test cases for unit tests using Path Testing (program graph, dd graph, cyclomatic complexity)
+3. Create unit tests with Data-driven unit testing
